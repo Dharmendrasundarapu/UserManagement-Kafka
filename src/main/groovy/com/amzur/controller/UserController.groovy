@@ -3,11 +3,13 @@ package com.amzur.controller
 import com.amzur.entity.UserEntity
 import com.amzur.model.UserRequest
 import com.amzur.service.UserService
+import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Status
 import io.micronaut.http.client.HttpClient
@@ -30,7 +32,7 @@ class UserController {
     HttpClient httpClient
 
     @ExecuteOn(TaskExecutors.BLOCKING)
-    @Post
+    @Post("/data")
     @Status(HttpStatus.CREATED)
     def createUser(@Body UserRequest userRequest)
     {
@@ -53,6 +55,33 @@ class UserController {
             }
             else {
                 return  HttpResponse.status(response.status).body("Failed to process user object in to other microservice")
+            }
+        }
+        catch (Exception e)
+        {
+            return HttpResponse.serverError("An error occured ${e.message}")
+        }
+
+    }
+    @ExecuteOn(TaskExecutors.BLOCKING)
+    @Get
+    @Status(HttpStatus.CREATED)
+    def getAllUsers()
+    {
+        try{
+            HttpResponse<List<UserEntity>> responses=httpClient.toBlocking().exchange(
+                    HttpRequest.GET("/users"),
+                    Argument.listOf(UserEntity)
+
+            )
+            if(responses.status()==HttpStatus.OK && responses.body())
+            {
+                def users=responses.body()
+                return  HttpResponse.ok(users)
+            }
+            else
+            {
+                return  HttpResponse.status(responses.status).body("Failed to get user object ")
             }
         }
         catch (Exception e)
