@@ -145,7 +145,7 @@ class UserController {
     }
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Delete("/delete/{id}")
-    @Status(HttpStatus.CREATED)
+    @Status(HttpStatus.NO_CONTENT)
     def deleteUser(@PathVariable Long id)
     {
         try {
@@ -156,7 +156,7 @@ class UserController {
             if(response.status()==HttpStatus.NO_CONTENT)
             {
 
-                return  HttpResponse.noContent()
+                return  HttpResponse.ok("Successfully deleted")
             }
             else
             {
